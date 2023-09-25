@@ -1,0 +1,5 @@
+---
+collections:
+  - name: https://github.com/eresseel/devops_jenkins_collection.git
+    type: git
+    version: master
