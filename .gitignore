@@ -1,0 +1,17 @@
+.tox
+.venv
+.vscode
+.vagrant
+*.log
+*.xml
+*/*.vdi
+__pycache__
+molecule/*/tests/__pycache__
+vagrant-files
+collections/*
+roles/*
+
+# Excludes
+!molecule/*/files/*.xml
+!collections/requirements.yml
+!roles/requirements.yml

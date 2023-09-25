@@ -1,0 +1,51 @@
+---
+- name: Prepare remote hosts for Ansible
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Check python is installed
+      raw: test -e /usr/bin/python3
+      register: test_python_bin_existence
+      failed_when: test_python_bin_existence.rc > 1
+      changed_when: test_python_bin_existence.rc == 1
+
+    - name: Install python
+      raw: apt -y update && apt install -y python-minimal
+      when:
+        - test_python_bin_existence.rc == 1
+
+- name: Update APT cache
+  hosts: all
+  become: true
+  tasks:
+    - name: APT-GET UPDATE
+      ansible.builtin.apt:
+        update_cache: yes
+      changed_when: false
+
+- name: Installing Build Tools
+  hosts: server
+  tags: server
+  become: true
+  handlers:
+    - name: Restart Docker Daemon
+      service:
+        name: docker
+        state: restarted
+  roles:
+    - role: geerlingguy.docker
+      docker_package: "docker-ce=5:20.10.17~3-0~ubuntu-focal"
+  tasks:
+    - name: Ensure vagrant user is in docker group
+      user:
+        name: vagrant
+        append: yes
+        groups: docker
+
+- name: Installing Build Tools
+  hosts: client
+  tags: client
+  become: true
+  roles:
+    - role: geerlingguy.nginx
